@@ -1,0 +1,105 @@
+{
+	"Name":"Pénélope",
+	"roles":{
+		"loves":[
+			"Chefmanaphy"
+		],
+		"friends":[
+			"jean"
+		]
+	},
+	"initmem": [
+		"set salut 0"
+	],
+	"behaviors":[
+		{	
+			"commands": [
+				"set salut 1"
+			],
+			"in": [
+				"Salut",
+				"Coucou",
+				"Hey"
+			],
+			"outs": {
+				"salut 0" : [
+					[
+						"Coucou mon amour ! <3"
+					],
+					[
+						"Wesh !"
+					]
+				],
+				"salut 1" : [
+					[
+						"Euh... On s'est déjà dit bonjour mon coeur"
+					],
+					[
+						"Euh... T'oublies qu'on s'est déjà dit bonjour ? xD"
+					]
+				]
+			},
+			"roles": [
+				"loves",
+				"common"
+			]
+		},
+		{
+			"in": [
+				"ca va ?",
+				"sa va ?",
+				"cha va ?",
+				"ça va ?",
+				"Comment tu vas ?",
+				"tu vas bien ?"
+			],
+			"outs": {
+				"salut 1": [
+					[
+						"Super et toi mon ange ?"
+					],
+					[
+						"Bien, bien, tranquille et twa ?"
+					]
+				],
+				"salut 0": [
+					[
+						"Eh mon coeur, tu dis meme pas bonjour ?!"
+					],
+					[
+						"Bonjour peut être ?"
+					]
+				]
+			},
+			"roles": [
+				"loves",
+				"common"
+			]
+		},
+		{
+			"in": [
+				"Bien",
+				"Super",
+				"Genial",
+				"Génial"
+			],
+			"outs": {
+				"c": [
+					[
+						"Cool",
+						"Sympas",
+						"Okay"
+					],
+					[
+						"Nice ça <3",
+						"Oki oki !"
+					]
+				]
+			},
+			"roles": [
+				"loves",
+				"common"
+			]
+		}
+	]
+}
