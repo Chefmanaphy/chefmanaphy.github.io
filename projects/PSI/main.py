@@ -8,6 +8,7 @@
 import os, sys, pygame
 from classes import *
 from pygame.locals import *
+from math import *
 
 size = width, height = 600,600
 pygame.init()
@@ -18,7 +19,33 @@ pygame.display.set_caption("Projet SI scanner3d")
 lss = 0
 theta = 0
 focal = 200
+keypressed = {}
+camera = [0,0,-200,2*3.14,0]
+vecteurdroite = Vector([])
+vecteurdevant = Vector([])
+speed = 1
+plane = []
 
+
+
+class Line:
+	def __init__(self,a,b,c,sw):
+		self.a = a
+		self.b = b
+		self.c = c
+		self.sw = sw
+
+	def display(self):
+		Drawing.line(self.a,self.b,self.c,self.sw)
+
+class Point:
+	def __init__(self,vec,c,sw):
+		self.c = c
+		self.sw = sw
+		self.vec = vec
+
+	def display(self):
+		Drawing.ellipse(self.vec,self.c,self.sw)
 
 class Drawing:
 	def applyperspective(vec,w):
@@ -38,13 +65,15 @@ class Drawing:
 
 
 	def ellipse(pos,color,radius):
-		pos = Drawing.apply3dstuff(pos)
-		pygame.draw.circle(screen,color,(int(pos.x),int(pos.y)),radius,0)
+		if (pos.z>=0):
+			pos = Drawing.apply3dstuff(pos)
+			pygame.draw.circle(screen,color,(int(pos.x),int(pos.y)),radius,0)
 
 	def line(posa, posb, color, strokeweight):
-		posa = Drawing.apply3dstuff(posa)
-		posb = Drawing.apply3dstuff(posb)
-		pygame.draw.line(screen, color, [int(posa.x),int(posa.y)], [int(posb.x),int(posb.y)],strokeweight)
+		if (posa.z>=0 and posb.z >=0):
+			posa = Drawing.apply3dstuff(posa)
+			posb = Drawing.apply3dstuff(posb)
+			pygame.draw.line(screen, color, [int(posa.x),int(posa.y)], [int(posb.x),int(posb.y)],strokeweight)
 
 
 def main():
@@ -68,35 +97,88 @@ def draw():
 	global theta
 	theta+=0.01
 	screen.fill([255,255,255])
+	vecteurdroite.x = cos(camera[4])
+	vecteurdroite.z = sin(camera[4])
 	points = []
+	lines = []
+
+	color = [0,0,0]
+
+	origin = Vector([0,0,0])
+
 	for i in range(2):
 		for j in range(2):
 			for k in range(2):
-				points.append(Vector([i*100-50,j*100-50,k*100-50]))
-
-	for i in range(len(points)):
-		points[i] = points[i].rotate(theta,theta,theta)
-		points[i] = points[i].translate(Vector([0,0,200]))
+				points.append(Point(Vector([i*100-50,j*100-50,k*100-50]),color,2))
 
 	for point in points:
-		Drawing.ellipse(point,[0,0,0],3)
+		# point.vec = point.vec.rotate(theta,theta,theta)
+		point.vec = point.vec.translate(Vector([-camera[0],camera[1],-camera[2]]))
+		point.vec = point.vec.rotate(-camera[3],camera[4],0)
 
-	def connect(i,j):
-		Drawing.line(points[i],points[j],[0,0,0],2)
-	for i in range(2):
-		connect(i*4+0,i*4+1)
-		connect(i*4+2,i*4+3)
-		connect(i*4+1,i*4+3)
-		connect(i*4+0,i*4+2)
-	for i in range(4):
-		connect(i,i+4)
+
+	lines.append(Line(points[0].vec,points[1].vec,color,2))
+	lines.append(Line(points[2].vec,points[3].vec,color,2))
+	lines.append(Line(points[1].vec,points[3].vec,color,2))
+	lines.append(Line(points[0].vec,points[2].vec,color,2))
+	lines.append(Line(points[4].vec,points[5].vec,color,2))
+	lines.append(Line(points[6].vec,points[7].vec,color,2))
+	lines.append(Line(points[5].vec,points[7].vec,color,2))
+	lines.append(Line(points[4].vec,points[6].vec,color,2))
+	lines.append(Line(points[0].vec,points[4].vec,color,2))
+	lines.append(Line(points[1].vec,points[5].vec,color,2))
+	lines.append(Line(points[2].vec,points[6].vec,color,2))
+	lines.append(Line(points[3].vec,points[7].vec,color,2))
+
+
+	for point in points:
+		point.display()
+
+	for line in lines:
+		line.display()
+
 
 def events():
-	pygame.time.Clock().tick(30)
+	pygame.time.Clock().tick(60)
 	for event in pygame.event.get():
 		if event.type == QUIT:
 			pygame.display.quit()
 			sys.exit(0)
+		if event.type == KEYDOWN:
+			keypressed[event.key] = True
+		if event.type == KEYUP:
+			keypressed[event.key] = False
+		if event.type==MOUSEBUTTONDOWN:
+			keypressed["mouse"+str(event.button)] = True
+		if event.type==MOUSEBUTTONUP:
+			keypressed["mouse"+str(event.button)] = False
+
+
+
+		if event.type == MOUSEMOTION and "mouse3" in keypressed and keypressed["mouse3"]:
+			camera[3] = -(event.pos[1]-height/2)/100
+			camera[4] = -(event.pos[0]-width/2)/100
+
+	if K_a in keypressed and keypressed[K_a]:
+		camera[0]-=vecteurdroite.x
+		camera[2]-=vecteurdroite.z
+
+	if K_d in keypressed and keypressed[K_d]:
+		camera[0]+=vecteurdroite.x
+		camera[2]+=vecteurdroite.z
+
+	if K_w in keypressed and keypressed[K_w]:
+		camera[2]+=speed
+
+	if K_s in keypressed and keypressed[K_s]:
+		camera[2]-=speed
+
+	if K_SPACE in keypressed and keypressed[K_SPACE]:
+		camera[1]+=speed
+
+	if K_LSHIFT in keypressed and keypressed[K_LSHIFT]:
+		camera[1]-=speed
+
 
 
 if __name__=="__main__":

@@ -17,9 +17,6 @@ class Vector:
 
 		self.length = len(data)
 
-	def display(self):
-		point(self.x,-self.y,self.z);
-
 	def printv(self,displaylength = False):
 		print()
 		if displaylength:
@@ -110,6 +107,10 @@ class Matrix:
 		print()
 
 
+	def display(self):
+		Drawing.ellipse(self.vec,self.c,self.sw)
+
+
 class Transform:
 
 	def rotationX(theta):
@@ -128,9 +129,15 @@ class Transform:
 					   [  0           ,  0           ,  1           ]])
 
 	def perspective(w,z):
-		return Matrix([[w/z,0  ,0],
-					   [0  ,w/z,0],
-					   [0  ,0  ,0]])
+		if (z!=0):
+			coef = w/z
 
+			return Matrix([[coef,0  ,0],
+						   [0  ,coef,0],
+						   [0  ,0  ,0]])
+		else:
+			return Matrix([[0,0,0],
+						   [0,0,0],
+						   [0,0,0]])
 
 
